@@ -1,1 +1,239 @@
-placeholder
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="HireSense AI — Multi-signal intelligence platform for smarter hiring decisions. Analyze candidates, detect resume inflation, and plan your workforce.">
+    <title>HireSense AI — Intelligent Hiring & Workforce Planning</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- HEADER -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <header class="app-header" id="app-header">
+        <div class="header-left">
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                        <defs>
+                            <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#6366f1"/>
+                                <stop offset="100%" style="stop-color:#8b5cf6"/>
+                            </linearGradient>
+                        </defs>
+                        <rect width="32" height="32" rx="8" fill="url(#logoGrad)"/>
+                        <path d="M10 16.5C10 13.5 12.5 11 16 11C19.5 11 22 13.5 22 16.5C22 19.5 19.5 22 16 22" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                        <circle cx="16" cy="16.5" r="2" fill="white"/>
+                        <path d="M16 8V10M16 23V25M8 16.5H10M22 16.5H24" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+                    </svg>
+                </div>
+                <div class="logo-text">
+                    <h1>HireSense<span class="ai-badge">AI</span></h1>
+                    <span class="tagline">Decision Intelligence for Startups</span>
+                </div>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="connection-status" id="connection-status">
+                <span class="status-dot"></span>
+                <span class="status-text">Connecting...</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- NAVIGATION TABS -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <nav class="tab-nav" id="tab-nav">
+        <button class="tab-btn active" data-tab="candidate" id="tab-candidate">
+            <span class="tab-icon">🔍</span>
+            <span class="tab-label">Candidate Analysis</span>
+        </button>
+        <button class="tab-btn" data-tab="team" id="tab-team">
+            <span class="tab-icon">🏢</span>
+            <span class="tab-label">Team Analysis</span>
+        </button>
+        <div class="tab-indicator" id="tab-indicator"></div>
+    </nav>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- MAIN CONTENT -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <main class="main-content" id="main-content">
+
+        <!-- ─── Candidate Analysis View ─── -->
+        <section class="view active" id="view-candidate">
+            <div class="view-grid">
+
+                <!-- Input Panel -->
+                <div class="panel glass-card" id="candidate-input-panel">
+                    <div class="panel-header">
+                        <h2>📄 Upload Resume</h2>
+                        <span class="badge badge-info">Step 1</span>
+                    </div>
+
+                    <div class="upload-zone" id="upload-zone">
+                        <div class="upload-icon">
+                            <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                                <path d="M24 6L24 32M24 6L16 14M24 6L32 14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M8 28V38C8 40.2091 9.79086 42 12 42H36C38.2091 42 40 40.2091 40 38V28" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <p class="upload-text">Drag & drop resume PDF here</p>
+                        <p class="upload-subtext">or click to browse</p>
+                        <input type="file" id="resume-file" accept=".pdf" hidden>
+                    </div>
+
+                    <div class="file-preview" id="file-preview" style="display: none;">
+                        <div class="file-info">
+                            <span class="file-icon">📎</span>
+                            <span class="file-name" id="file-name"></span>
+                            <span class="file-size" id="file-size"></span>
+                        </div>
+                        <button class="btn-icon" id="remove-file" title="Remove file">✕</button>
+                    </div>
+
+                    <div class="panel-header" style="margin-top: 1.5rem;">
+                        <h2>💼 Job Description</h2>
+                        <span class="badge badge-info">Step 2</span>
+                    </div>
+                    <textarea 
+                        class="input-textarea" 
+                        id="job-description" 
+                        placeholder="Paste the job description here...&#10;&#10;Example: We are looking for a Full Stack Developer with experience in React, Node.js, and PostgreSQL. The ideal candidate should have 2+ years of experience..."
+                        rows="6"
+                    ></textarea>
+
+                    <button class="btn btn-primary btn-analyze" id="btn-analyze-candidate" disabled>
+                        <span class="btn-icon-left">🚀</span>
+                        <span>Analyze Candidate</span>
+                        <span class="btn-loader" style="display: none;"></span>
+                    </button>
+                </div>
+
+                <!-- Results Panel -->
+                <div class="panel glass-card" id="candidate-results-panel">
+                    <div class="panel-header">
+                        <h2>📊 Analysis Results</h2>
+                        <span class="badge badge-neutral">Waiting for input</span>
+                    </div>
+
+                    <div class="empty-state" id="candidate-empty-state">
+                        <div class="empty-illustration">
+                            <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+                                <circle cx="60" cy="60" r="50" stroke="currentColor" stroke-width="1" stroke-dasharray="8 4" opacity="0.3"/>
+                                <circle cx="60" cy="60" r="30" stroke="currentColor" stroke-width="1" stroke-dasharray="4 4" opacity="0.2"/>
+                                <circle cx="60" cy="60" r="4" fill="currentColor" opacity="0.4"/>
+                                <path d="M60 35V45M60 75V85M35 60H45M75 60H85" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.3"/>
+                            </svg>
+                        </div>
+                        <h3>No analysis yet</h3>
+                        <p>Upload a resume and paste a job description to get started.</p>
+                    </div>
+
+                    <!-- Results will be injected here in Phase 5 -->
+                    <div class="results-container" id="candidate-results" style="display: none;">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ─── Team Analysis View ─── -->
+        <section class="view" id="view-team">
+            <div class="view-grid">
+
+                <!-- Input Panel -->
+                <div class="panel glass-card" id="team-input-panel">
+                    <div class="panel-header">
+                        <h2>👥 Team Information</h2>
+                        <span class="badge badge-info">Input</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="team-name">Team Name</label>
+                        <input type="text" class="form-input" id="team-name" placeholder="e.g., Engineering Team Alpha">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="team-skills">
+                            Current Team Skills
+                            <span class="form-hint">Comma-separated list</span>
+                        </label>
+                        <textarea 
+                            class="input-textarea" 
+                            id="team-skills" 
+                            placeholder="Python, React, PostgreSQL, Docker, AWS, Machine Learning..."
+                            rows="4"
+                        ></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="project-requirements">
+                            Project Requirements
+                            <span class="form-hint">Skills needed for upcoming projects</span>
+                        </label>
+                        <textarea 
+                            class="input-textarea" 
+                            id="project-requirements" 
+                            placeholder="Kubernetes, CI/CD pipelines, GraphQL, Redis caching, Microservices architecture, Terraform..."
+                            rows="4"
+                        ></textarea>
+                    </div>
+
+                    <button class="btn btn-primary btn-analyze" id="btn-analyze-team" disabled>
+                        <span class="btn-icon-left">🏗️</span>
+                        <span>Analyze Team Gaps</span>
+                        <span class="btn-loader" style="display: none;"></span>
+                    </button>
+                </div>
+
+                <!-- Results Panel -->
+                <div class="panel glass-card" id="team-results-panel">
+                    <div class="panel-header">
+                        <h2>📋 Gap Analysis & Hire Plan</h2>
+                        <span class="badge badge-neutral">Waiting for input</span>
+                    </div>
+
+                    <div class="empty-state" id="team-empty-state">
+                        <div class="empty-illustration">
+                            <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+                                <rect x="20" y="40" width="80" height="50" rx="8" stroke="currentColor" stroke-width="1" stroke-dasharray="8 4" opacity="0.3"/>
+                                <circle cx="40" cy="30" r="10" stroke="currentColor" stroke-width="1" stroke-dasharray="4 4" opacity="0.2"/>
+                                <circle cx="60" cy="28" r="12" stroke="currentColor" stroke-width="1" stroke-dasharray="4 4" opacity="0.25"/>
+                                <circle cx="80" cy="30" r="10" stroke="currentColor" stroke-width="1" stroke-dasharray="4 4" opacity="0.2"/>
+                            </svg>
+                        </div>
+                        <h3>No team analysis yet</h3>
+                        <p>Enter your team skills and project requirements to identify gaps.</p>
+                    </div>
+
+                    <!-- Results will be injected here in Phase 5 -->
+                    <div class="results-container" id="team-results" style="display: none;">
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- TOAST CONTAINER -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- FOOTER -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <footer class="app-footer" id="app-footer">
+        <span>HireSense AI v1.0</span>
+        <span class="footer-divider">•</span>
+        <span>Decision Intelligence for Startups</span>
+    </footer>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/app.js"></script>
+</body>
+</html>
