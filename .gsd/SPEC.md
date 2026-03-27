@@ -33,17 +33,17 @@ HireSense AI replaces resume-based hiring with a multi-signal intelligence syste
 
 ## Tech Stack
 
-| Layer | Choice | Rationale |
-|-------|--------|-----------|
-| Backend | **FastAPI** (Python) | Fast async API, Python ML ecosystem |
-| Frontend | **Plain HTML/CSS/JS** | Lightweight, hackathon-friendly, no build step |
-| Database | **SQLite** | Zero-config, local-first, sufficient for demo |
-| ML/NLP | **sentence-transformers**, scikit-learn, spaCy | Semantic similarity, feature engineering |
-| Resume Parsing | **pdfplumber** + spaCy + regex | Structured extraction from PDFs |
-| GitHub Data | **GitHub REST API** (with PAT) | Rich developer activity signals |
-| LeetCode Data | **GraphQL endpoint** | Problem-solving metrics |
-| Salary Data | **Public datasets** (Levels.fyi, GitHub Jobs archive) | Market salary estimation |
-| Internal Team AI | **Local LLM** (LM Studio / Ollama) | Confidentiality for company data |
+| Layer            | Choice                                                | Rationale                                      |
+| ---------------- | ----------------------------------------------------- | ---------------------------------------------- |
+| Backend          | **FastAPI** (Python)                                  | Fast async API, Python ML ecosystem            |
+| Frontend         | **Plain HTML/CSS/JS**                                 | Lightweight, hackathon-friendly, no build step |
+| Database         | **SQLite**                                            | Zero-config, local-first, sufficient for demo  |
+| ML/NLP           | **sentence-transformers**, scikit-learn, spaCy        | Semantic similarity, feature engineering       |
+| Resume Parsing   | **pdfplumber** + spaCy + regex                        | Structured extraction from PDFs                |
+| GitHub Data      | **GitHub REST API** (with PAT)                        | Rich developer activity signals                |
+| LeetCode Data    | **GraphQL endpoint**                                  | Problem-solving metrics                        |
+| Salary Data      | **Public datasets** (Levels.fyi, GitHub Jobs archive) | Market salary estimation                       |
+| Internal Team AI | **Local LLM** (LM Studio / Ollama)                    | Confidentiality for company data               |
 
 ## Constraints
 
