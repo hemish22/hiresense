@@ -28,7 +28,7 @@
 ---
 
 ### Phase 2: Resume Parser + GitHub & LeetCode Analyzers
-**Status**: ⬜ Not Started
+**Status**: ✅ Complete
 **Objective**: Build the three data ingestion modules — PDF resume parser (structured extraction), GitHub REST API analyzer (4 scores), and LeetCode GraphQL analyzer (difficulty-weighted metrics). Wire them into the API.
 **Requirements**: REQ-01, REQ-02, REQ-03, REQ-04
 **Deliverable**: Upload a resume → extracted profile with GitHub/LeetCode data fetched and scored.
