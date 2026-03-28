@@ -1,6 +1,6 @@
 """
 HireSense AI — Candidate Analysis Endpoints
-Full pipeline: upload resume → parse → fetch GitHub → fetch LeetCode
+Full pipeline: upload resume → parse → fetch GitHub → fetch LeetCode → ML scoring
 """
 
 import os
@@ -15,6 +15,7 @@ from backend.models.candidate import CandidateAnalysis
 from backend.services.resume_parser import ResumeParser
 from backend.services.github_analyzer import GitHubAnalyzer
 from backend.services.leetcode_analyzer import LeetCodeAnalyzer
+from backend.services.scoring_engine import ScoringEngine
 from backend.config import settings
 
 router = APIRouter()
@@ -33,7 +34,7 @@ async def analyze_candidate(
     db: Session = Depends(get_db),
 ):
     """
-    Analyze a candidate: parse resume, fetch GitHub/LeetCode data, return combined profile.
+    Analyze a candidate: parse resume, fetch GitHub/LeetCode data, run ML scoring.
     """
     # 1. Save uploaded PDF
     timestamp = int(time.time())
@@ -73,7 +74,16 @@ async def analyze_candidate(
         except Exception as e:
             leetcode_result = {"error": f"LeetCode analysis failed: {str(e)}"}
 
-    # 6. Assemble the full analysis result
+    # 6. Run ML scoring engine
+    scoring_engine = ScoringEngine()
+    scoring_result = scoring_engine.score(
+        parsed_resume=parsed,
+        job_description=job_description,
+        github_data=github_result,
+        leetcode_data=leetcode_result,
+    )
+
+    # 7. Assemble the full analysis result
     analysis_data = {
         "candidate": {
             "name": parsed.get("name"),
@@ -91,10 +101,11 @@ async def analyze_candidate(
         },
         "github_analysis": github_result,
         "leetcode_analysis": leetcode_result,
+        "scoring": scoring_result,
         "job_description": job_description,
     }
 
-    # 7. Save to database
+    # 8. Save to database with computed scores
     db_record = CandidateAnalysis(
         candidate_name=parsed.get("name"),
         email=parsed.get("email"),
@@ -102,21 +113,26 @@ async def analyze_candidate(
         leetcode_username=lc_username,
         resume_skills=json.dumps(parsed.get("skills", [])),
         job_description=job_description,
+        match_score=scoring_result["scores"]["match_score"],
+        learning_ability_score=scoring_result["scores"]["learning_score"],
+        credibility_score=scoring_result["scores"]["credibility_score"],
+        overall_score=scoring_result["overall_score"],
         analysis_result=json.dumps(analysis_data, default=str),
     )
     db.add(db_record)
     db.commit()
     db.refresh(db_record)
 
-    # 8. Build response
+    # 9. Build response
     return {
         "id": db_record.id,
         "status": "analyzed",
         "candidate": analysis_data["candidate"],
+        "scoring": scoring_result,
         "github_analysis": github_result,
         "leetcode_analysis": leetcode_result,
         "job_description": job_description,
-        "message": "Candidate profile analyzed. ML scoring available in Phase 3.",
+        "message": "Full candidate analysis complete.",
     }
 
 
