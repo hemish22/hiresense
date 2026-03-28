@@ -266,7 +266,10 @@ export function CandidateView() {
               </CardHeader>
               <CardContent>
                 <p className="text-foreground leading-relaxed">
-                  {result.scoring?.explanation || result.rationale || result.explanation || "No rationale provided by the engine."}
+                  {(() => {
+                    const text = result.scoring?.explanation || result.rationale || result.explanation || "No rationale provided by the engine.";
+                    return typeof text === 'string' ? text.replace(/\s*\(\d+\/100\)/g, '') : text;
+                  })()}
                 </p>
               </CardContent>
             </Card>
