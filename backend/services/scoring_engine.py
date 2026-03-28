@@ -154,7 +154,7 @@ class ScoringEngine:
         credibility: float,
     ) -> str:
         """Generate narrative summary of the candidate assessment."""
-        parts = [f"Overall assessment: {recommendation} ({overall:.0f}/100)."]
+        parts = [f"Overall assessment: {recommendation}."]
 
         # Highlight strengths
         strengths = []

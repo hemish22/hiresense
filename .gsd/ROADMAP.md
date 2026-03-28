@@ -92,3 +92,15 @@
 **Verification**:
 - TBD
 
+---
+### Phase 10: Team Gap Analysis UI Overhaul
+**Status**: ⬜ Not Started
+**Objective**: Redesign the Team Gap Analysis view to match the premium aesthetics of the new Candidate dashboard and Shadcn visual design system.
+**Depends on**: Phase 9
+
+**Tasks**:
+- [ ] TBD (run /plan 10 to create)
+
+**Verification**:
+- TBD
+
