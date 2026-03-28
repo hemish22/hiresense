@@ -10,7 +10,13 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { analyzeCandidate } from "@/lib/api";
-import { UploadCloud, FileText, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
+import { UploadCloud, FileText, CheckCircle2, AlertCircle, Loader2, MinusCircle, XCircle } from "lucide-react";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from "@/components/ui/chart";
 import {
   RadarChart,
   PolarGrid,
@@ -18,8 +24,14 @@ import {
   PolarRadiusAxis,
   Radar,
   ResponsiveContainer,
-  Tooltip,
 } from "recharts";
+
+const chartConfig = {
+  score: {
+    label: "Score",
+    color: "hsl(var(--primary))",
+  },
+} satisfies ChartConfig;
 
 // Transform category_scores object into recharts data array
 function buildRadarData(categoryScores: Record<string, number> | undefined) {
@@ -89,7 +101,7 @@ export function CandidateView() {
     try {
       const formData = new FormData();
       formData.append("resume", file);
-      formData.append("job_requirements", jd);
+      formData.append("job_description", jd);
 
       const response = await analyzeCandidate(formData);
       setResult(response);
@@ -100,7 +112,7 @@ export function CandidateView() {
     }
   };
 
-  const radarData = buildRadarData(result?.category_scores);
+  const radarData = buildRadarData(result?.scoring?.skill_match?.category_scores);
 
   return (
     <div className="space-y-8">
@@ -181,11 +193,38 @@ export function CandidateView() {
         </Card>
       ) : (
         <div className="space-y-6">
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2">
             <div>
               <h2 className="text-2xl font-bold tracking-tight">Analysis Complete</h2>
               <p className="text-muted-foreground">Evaluation for {file?.name}</p>
             </div>
+            
+            {/* Verification Badges */}
+            <div className="flex flex-wrap gap-2">
+              <div className="flex items-center gap-1.5 text-sm text-muted-foreground border rounded-full px-3 py-1 bg-muted/20 shadow-sm">
+                <span className="font-semibold text-xs tracking-wide">GEMINI</span>
+                {result.scoring?.skill_match?.details?.engine === "gemini" || result.details?.engine === "gemini" 
+                  ? <CheckCircle2 className="h-4 w-4 text-green-500" /> 
+                  : <XCircle className="h-4 w-4 text-destructive" />}
+              </div>
+              <div className="flex items-center gap-1.5 text-sm text-muted-foreground border rounded-full px-3 py-1 bg-muted/20 shadow-sm">
+                <span className="font-semibold text-xs tracking-wide">GITHUB</span>
+                {!result.github_analysis?.error && !result.github_analysis?.user_not_found 
+                  ? <CheckCircle2 className="h-4 w-4 text-green-500" /> 
+                  : result.github_analysis?.user_not_found 
+                    ? <MinusCircle className="h-4 w-4 text-amber-500" /> 
+                    : <XCircle className="h-4 w-4 text-destructive" />}
+              </div>
+              <div className="flex items-center gap-1.5 text-sm text-muted-foreground border rounded-full px-3 py-1 bg-muted/20 shadow-sm">
+                <span className="font-semibold text-xs tracking-wide">LEETCODE</span>
+                {!result.leetcode_analysis?.error && !result.leetcode_analysis?.user_not_found 
+                  ? <CheckCircle2 className="h-4 w-4 text-green-500" /> 
+                  : result.leetcode_analysis?.user_not_found 
+                    ? <MinusCircle className="h-4 w-4 text-amber-500" /> 
+                    : <XCircle className="h-4 w-4 text-destructive" />}
+              </div>
+            </div>
+
             <Button variant="outline" onClick={() => { setResult(null); setFile(null); setJd(""); }}>
               Analyze Another
             </Button>
@@ -200,12 +239,12 @@ export function CandidateView() {
               </CardHeader>
               <CardContent>
                 <div className="text-5xl font-extrabold tracking-tighter flex items-baseline gap-1">
-                  {result.match_score} <span className="text-2xl text-muted-foreground">/100</span>
+                  {result.scoring?.scores?.match_score ?? result.match_score} <span className="text-2xl text-muted-foreground">/100</span>
                 </div>
-                <Progress value={result.match_score} className="h-2 mt-4" />
+                <Progress value={result.scoring?.scores?.match_score ?? result.match_score} className="h-2 mt-4" />
                 <div className="mt-4 inline-flex">
-                  <Badge variant={result.recommendation === "HIRE" ? "default" : result.recommendation === "NO HIRE" ? "destructive" : "secondary"} className="text-sm px-3 py-1">
-                    {result.recommendation || "Needs Review"}
+                  <Badge variant={result.scoring?.recommendation === "Strong Hire" || result.scoring?.recommendation === "Hire" || result.recommendation === "HIRE" ? "default" : result.scoring?.recommendation === "Pass" || result.recommendation === "NO HIRE" ? "destructive" : "secondary"} className="text-sm px-3 py-1">
+                    {result.scoring?.recommendation || result.recommendation || "Needs Review"}
                   </Badge>
                 </div>
               </CardContent>
@@ -218,7 +257,7 @@ export function CandidateView() {
               </CardHeader>
               <CardContent>
                 <p className="text-foreground leading-relaxed">
-                  {result.rationale || result.explanation || "No rationale provided by the engine."}
+                  {result.scoring?.explanation || result.rationale || result.explanation || "No rationale provided by the engine."}
                 </p>
               </CardContent>
             </Card>
@@ -232,16 +271,20 @@ export function CandidateView() {
                     Technical depth across key domains
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="flex items-center justify-center">
-                  <ResponsiveContainer width="100%" height={260}>
-                    <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
-                      <PolarGrid
+                <CardContent className="flex items-center justify-center pb-0">
+                  <ChartContainer
+                    config={chartConfig}
+                    className="mx-auto aspect-square w-full max-h-[260px]"
+                  >
+                    <RadarChart data={radarData}>
+                      <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+                      <PolarAngleAxis 
+                        dataKey="category" 
+                        tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
+                      />
+                      <PolarGrid 
                         stroke="hsl(var(--muted-foreground))"
                         strokeOpacity={0.15}
-                      />
-                      <PolarAngleAxis
-                        dataKey="category"
-                        tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
                       />
                       <PolarRadiusAxis
                         angle={30}
@@ -252,26 +295,18 @@ export function CandidateView() {
                         strokeOpacity={0.2}
                       />
                       <Radar
-                        name="Candidate"
                         dataKey="score"
-                        stroke="hsl(var(--primary))"
-                        fill="hsl(var(--primary))"
-                        fillOpacity={0.25}
+                        fill="var(--color-score)"
+                        fillOpacity={0.6}
+                        stroke="var(--color-score)"
                         strokeWidth={2}
-                        dot={{ r: 3, fill: "hsl(var(--primary))" }}
-                      />
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: "hsl(var(--popover))",
-                          border: "1px solid hsl(var(--border))",
-                          borderRadius: "8px",
-                          fontSize: "12px",
-                          color: "hsl(var(--popover-foreground))",
+                        dot={{
+                          r: 4,
+                          fillOpacity: 1,
                         }}
-                        formatter={(value: any) => [`${value}/100`, "Score"]}
                       />
                     </RadarChart>
-                  </ResponsiveContainer>
+                  </ChartContainer>
                 </CardContent>
               </Card>
             )}
@@ -285,13 +320,13 @@ export function CandidateView() {
             <CardContent>
               <div className="space-y-6">
                 {/* Matched Skills */}
-                {result.matched_skills && result.matched_skills.length > 0 && (
+                {(result.scoring?.skill_match?.matched_skills || result.matched_skills) && (result.scoring?.skill_match?.matched_skills || result.matched_skills).length > 0 && (
                   <div>
                     <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
                       <CheckCircle2 className="h-4 w-4 text-green-500" /> Matched Skills
                     </h4>
                     <div className="flex flex-wrap gap-2">
-                      {result.matched_skills.map((skill: string, i: number) => (
+                      {(result.scoring?.skill_match?.matched_skills || result.matched_skills).map((skill: string, i: number) => (
                         <Badge key={i} variant="outline" className="bg-green-500/10 text-green-700 border-green-500/20 dark:text-green-400 hover:bg-green-500/20">
                           {skill}
                         </Badge>
@@ -305,9 +340,9 @@ export function CandidateView() {
                   <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
                     <AlertCircle className="h-4 w-4 text-destructive" /> Critical Missing Skills
                   </h4>
-                  {(result.skill_gaps || result.missing_skills) && (result.skill_gaps || result.missing_skills).length > 0 ? (
+                  {(result.scoring?.skill_match?.missing_skills || result.skill_gaps || result.missing_skills) && (result.scoring?.skill_match?.missing_skills || result.skill_gaps || result.missing_skills).length > 0 ? (
                     <div className="flex flex-wrap gap-2">
-                      {(result.skill_gaps || result.missing_skills).map((gap: string, i: number) => (
+                      {(result.scoring?.skill_match?.missing_skills || result.skill_gaps || result.missing_skills).map((gap: string, i: number) => (
                         <Badge key={i} variant="outline" className="bg-destructive/10 text-destructive border-destructive/20 hover:bg-destructive/20">
                           {gap}
                         </Badge>
@@ -319,13 +354,13 @@ export function CandidateView() {
                 </div>
 
                 {/* Bonus Skills */}
-                {result.bonus_skills && result.bonus_skills.length > 0 && (
+                {(result.scoring?.skill_match?.bonus_skills || result.bonus_skills) && (result.scoring?.skill_match?.bonus_skills || result.bonus_skills).length > 0 && (
                   <div>
                     <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
                       <CheckCircle2 className="h-4 w-4 text-blue-500" /> Bonus Skills
                     </h4>
                     <div className="flex flex-wrap gap-2">
-                      {result.bonus_skills.map((skill: string, i: number) => (
+                      {(result.scoring?.skill_match?.bonus_skills || result.bonus_skills).map((skill: string, i: number) => (
                         <Badge key={i} variant="outline" className="bg-blue-500/10 text-blue-700 border-blue-500/20 dark:text-blue-400">
                           {skill}
                         </Badge>
@@ -334,19 +369,19 @@ export function CandidateView() {
                   </div>
                 )}
                 
-                {result.learning_ability && (
+                {(result.scoring?.learning_analysis?.explanation || result.learning_ability) && (
                    <div>
                      <h4 className="text-sm font-semibold mb-2">Projected Learning Velocity</h4>
-                     <p className="text-sm text-foreground">{result.learning_ability}</p>
+                     <p className="text-sm text-foreground">{result.scoring?.learning_analysis?.explanation || result.learning_ability}</p>
                    </div>
                 )}
 
                 {/* Semantic Matches (AI reasoning) */}
-                {result.details?.semantic_matches && result.details.semantic_matches.length > 0 && result.details.engine === "gemini" && (
+                {(result.scoring?.skill_match?.details?.semantic_matches || result.details?.semantic_matches) && (result.scoring?.skill_match?.details?.semantic_matches || result.details?.semantic_matches).length > 0 && (result.scoring?.skill_match?.details?.engine === "gemini" || result.details?.engine === "gemini") && (
                   <div>
                     <h4 className="text-sm font-semibold mb-3">AI Semantic Reasoning</h4>
                     <div className="space-y-2">
-                      {result.details.semantic_matches.slice(0, 6).map((match: any, i: number) => (
+                      {(result.scoring?.skill_match?.details?.semantic_matches || result.details?.semantic_matches).slice(0, 6).map((match: any, i: number) => (
                         <div key={i} className="flex items-start gap-3 text-sm border rounded-lg p-3 bg-muted/30">
                           <Badge variant="secondary" className="shrink-0 mt-0.5 text-xs">
                             {match.match_type}
