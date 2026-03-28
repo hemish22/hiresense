@@ -380,8 +380,8 @@ async function handleTeamAnalysis() {
         };
 
         const result = await analyzeTeam(data);
-
-        showToast('info', 'Coming Soon', result.message || 'Team analysis will be available in Phase 4.');
+        renderTeamResults(result);
+        showToast('success', 'Analysis Complete', `Coverage: ${result.coverage_score}%`);
     } catch (error) {
         showToast('error', 'Analysis Failed', error.message);
     } finally {
@@ -390,6 +390,139 @@ async function handleTeamAnalysis() {
         btnText.textContent = 'Analyze Team Gaps';
         validateTeamForm();
     }
+}
+
+/* ═══════════════════════════════════════════════════
+   TEAM RESULTS RENDERING
+   ═══════════════════════════════════════════════════ */
+
+function getUrgencyColor(urgency) {
+    if (urgency === 'critical') return 'var(--color-error)';
+    if (urgency === 'high') return '#f59e0b';
+    if (urgency === 'medium') return 'var(--accent-primary)';
+    return 'var(--text-muted)';
+}
+
+function renderTeamResults(data) {
+    const container = document.getElementById('team-results');
+    const emptyState = document.getElementById('team-empty-state');
+    const badge = document.querySelector('#team-results-panel .badge');
+
+    const coverage = data.coverage_score || 0;
+    const gapSummary = data.gap_summary || {};
+    const covered = data.covered_skills || [];
+    const clusters = data.gap_clusters || [];
+    const hirePlan = data.hire_plan || [];
+    const budget = data.budget_impact || {};
+    const jds = data.job_descriptions || [];
+
+    badge.textContent = `${Math.round(coverage)}% Coverage`;
+    badge.className = `badge ${coverage >= 70 ? 'rec-strong-hire' : coverage >= 40 ? 'rec-maybe' : 'rec-pass'}`;
+
+    let html = '';
+
+    // ── Coverage Hero ──
+    html += `
+    <div class="score-hero">
+        <div class="score-ring" style="--score-color: ${getScoreColor(coverage)}; --score-pct: ${coverage}%">
+            <div class="score-ring-inner">
+                <span class="score-number">${Math.round(coverage)}</span>
+                <span class="score-label">Coverage</span>
+            </div>
+        </div>
+        <div class="gap-summary-stats">
+            <span class="gap-stat"><strong>${gapSummary.covered || 0}</strong> covered</span>
+            <span class="gap-stat-sep">·</span>
+            <span class="gap-stat gap-stat-warn"><strong>${gapSummary.gaps || 0}</strong> gaps</span>
+            <span class="gap-stat-sep">·</span>
+            <span class="gap-stat"><strong>${gapSummary.total_required || 0}</strong> required</span>
+        </div>
+        <p class="score-explanation">${data.explanation || ''}</p>
+    </div>`;
+
+    // ── Covered Skills ──
+    if (covered.length) {
+        html += '<div class="section-block"><h4>✅ Covered Skills</h4><div class="skill-tags">';
+        for (const s of covered) html += `<span class="skill-tag matched">✓ ${s}</span>`;
+        html += '</div></div>';
+    }
+
+    // ── Gap Clusters ──
+    if (clusters.length) {
+        html += '<div class="section-block"><h4>⚠️ Skill Gap Clusters</h4><div class="gap-clusters-grid">';
+        for (const c of clusters) {
+            const urgColor = getUrgencyColor(c.urgency);
+            html += `
+            <div class="gap-cluster-card" style="border-left-color: ${urgColor}">
+                <div class="cluster-header">
+                    <span class="cluster-domain">${c.domain.replace('_', '/').toUpperCase()}</span>
+                    <span class="cluster-urgency" style="color: ${urgColor}">${c.urgency}</span>
+                </div>
+                <div class="skill-tags">
+                    ${c.skills.map(s => `<span class="skill-tag missing">✗ ${s}</span>`).join('')}
+                </div>
+                <p class="cluster-reason">${c.reason}</p>
+            </div>`;
+        }
+        html += '</div></div>';
+    }
+
+    // ── Hire Plan + Salary ──
+    if (hirePlan.length) {
+        html += '<div class="section-block"><h4>🏗️ Recommended Hires</h4>';
+
+        if (budget.formatted) {
+            html += `
+            <div class="budget-summary">
+                <span class="budget-label">Total Budget Impact</span>
+                <span class="budget-value">${budget.formatted}</span>
+                <span class="budget-meta">${budget.location || ''} · ${budget.experience || 'mid'} level</span>
+            </div>`;
+        }
+
+        html += '<div class="hire-plan-list">';
+        for (const h of hirePlan) {
+            const urgColor = getUrgencyColor(h.urgency);
+            const salary = h.salary || {};
+            html += `
+            <div class="hire-card">
+                <div class="hire-header">
+                    <span class="hire-priority" style="background: ${urgColor}">#${h.priority}</span>
+                    <span class="hire-role">${h.role}</span>
+                    <span class="hire-salary">${salary.formatted || ''}</span>
+                </div>
+                <div class="skill-tags">
+                    ${(h.skills_covered || []).map(s => `<span class="skill-tag bonus">+ ${s}</span>`).join('')}
+                </div>
+                <p class="hire-justification">${h.justification || ''}</p>
+            </div>`;
+        }
+        html += '</div></div>';
+    }
+
+    // ── Job Descriptions ──
+    if (jds.length) {
+        html += '<div class="section-block"><h4>📄 Generated Job Descriptions</h4><div class="jd-list">';
+        for (let i = 0; i < jds.length; i++) {
+            const jd = jds[i];
+            html += `
+            <div class="jd-card">
+                <button class="jd-toggle" onclick="this.parentElement.classList.toggle('expanded')">
+                    <span>${jd.title}</span>
+                    <span class="jd-chevron">▼</span>
+                </button>
+                <div class="jd-content">
+                    <pre class="jd-text">${jd.description || ''}</pre>
+                    <button class="btn-copy" onclick="navigator.clipboard.writeText(this.previousElementSibling.textContent); this.textContent='Copied!'; setTimeout(()=>this.textContent='📋 Copy JD', 2000)">📋 Copy JD</button>
+                </div>
+            </div>`;
+        }
+        html += '</div></div>';
+    }
+
+    container.innerHTML = html;
+    container.style.display = 'block';
+    emptyState.style.display = 'none';
 }
 
 /* ═══════════════════════════════════════════════════

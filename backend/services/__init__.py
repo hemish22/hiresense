@@ -10,6 +10,9 @@ from backend.services.skill_matcher import SkillMatcher
 from backend.services.learning_predictor import LearningPredictor
 from backend.services.inflation_detector import InflationDetector
 from backend.services.scoring_engine import ScoringEngine
+from backend.services.team_analyzer import TeamAnalyzer
+from backend.services.salary_benchmarker import SalaryBenchmarker
+from backend.services.jd_generator import JDGenerator
 from backend.services.skill_dictionary import (
     SKILL_CATEGORIES,
     ALL_SKILLS,
@@ -25,6 +28,9 @@ __all__ = [
     "LearningPredictor",
     "InflationDetector",
     "ScoringEngine",
+    "TeamAnalyzer",
+    "SalaryBenchmarker",
+    "JDGenerator",
     "SKILL_CATEGORIES",
     "ALL_SKILLS",
     "find_skills_in_text",

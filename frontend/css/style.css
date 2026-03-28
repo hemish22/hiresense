@@ -1065,6 +1065,242 @@ body::before {
     letter-spacing: 0.03em;
 }
 
+/* ─── Team Results: Gap Summary ─── */
+.gap-summary-stats {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-md);
+}
+
+.gap-stat strong {
+    color: var(--text-primary);
+}
+
+.gap-stat-warn strong {
+    color: #f59e0b;
+}
+
+.gap-stat-sep {
+    opacity: 0.3;
+}
+
+/* ─── Team Results: Gap Clusters ─── */
+.gap-clusters-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.gap-cluster-card {
+    padding: var(--space-md);
+    background: var(--bg-primary);
+    border: 1px solid var(--border-subtle);
+    border-left: 3px solid var(--accent-primary);
+    border-radius: var(--radius-sm);
+}
+
+.cluster-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-sm);
+}
+
+.cluster-domain {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--text-primary);
+}
+
+.cluster-urgency {
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.cluster-reason {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: var(--space-xs);
+}
+
+/* ─── Team Results: Budget Summary ─── */
+.budget-summary {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--space-lg);
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(16, 185, 129, 0.06));
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-lg);
+    text-align: center;
+}
+
+.budget-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin-bottom: var(--space-xs);
+}
+
+.budget-value {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+
+.budget-meta {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+/* ─── Team Results: Hire Cards ─── */
+.hire-plan-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.hire-card {
+    padding: var(--space-md);
+    background: var(--bg-primary);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+}
+
+.hire-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-sm);
+}
+
+.hire-priority {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-sm);
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: white;
+}
+
+.hire-role {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    flex: 1;
+}
+
+.hire-salary {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--accent-secondary-light);
+    font-family: var(--font-mono);
+}
+
+.hire-justification {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-top: var(--space-xs);
+    line-height: 1.5;
+}
+
+/* ─── Team Results: JD Cards ─── */
+.jd-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.jd-card {
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+}
+
+.jd-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: var(--space-md);
+    background: var(--bg-primary);
+    border: none;
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.jd-toggle:hover {
+    background: var(--bg-elevated);
+}
+
+.jd-chevron {
+    font-size: 0.7rem;
+    transition: transform var(--transition-base);
+}
+
+.jd-card.expanded .jd-chevron {
+    transform: rotate(180deg);
+}
+
+.jd-content {
+    display: none;
+    padding: var(--space-md);
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-subtle);
+}
+
+.jd-card.expanded .jd-content {
+    display: block;
+}
+
+.jd-text {
+    font-family: var(--font-sans);
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    line-height: 1.6;
+    margin-bottom: var(--space-md);
+}
+
+.btn-copy {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: 6px 14px;
+    background: rgba(99, 102, 241, 0.1);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: var(--radius-sm);
+    color: var(--accent-primary-light);
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.btn-copy:hover {
+    background: rgba(99, 102, 241, 0.15);
+}
+
 /* ─── Loading State ─── */
 .loading-shimmer {
     background: linear-gradient(
