@@ -63,3 +63,10 @@
 **Status**: ✅ Complete
 **Objective**: Build a visually stunning landing page and migrate the dashboard to React, Tailwind, and Shadcn UI. Implement `BackgroundPaths` and `HeroSection` components. Replace emojis with Phosphor/Lucide icons.
 **Depends on**: Phase 5
+
+---
+
+### Phase 7: Connect Frontend and Backend (Dashboard Migration)
+**Status**: ⬜ Not Started
+**Objective**: Build out the Next.js `/dashboard` route, abstract API fetches with React paradigms (connecting to `localhost:8000`), and construct the rich shadcn-based result cards for Candidate and Team Gap analysis, bringing full functional parity to the React rollout.
+**Depends on**: Phase 6
