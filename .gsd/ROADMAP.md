@@ -56,3 +56,10 @@
 **Objective**: Build the complete frontend dashboard — candidate analysis flow (upload → instant report), team analysis flow (input → hire plan), result persistence, comparison views, and demo-ready polish (animations, responsive layout, error states).
 **Requirements**: REQ-19, REQ-20
 **Deliverable**: End-to-end working demo: upload resume → see full analysis; input team → see hire plan. Production-quality UI.
+
+---
+
+### Phase 6: Modern React UI Migration (Shadcn + Tailwind)
+**Status**: ⬜ Not Started
+**Objective**: Build a visually stunning landing page and migrate the dashboard to React, Tailwind, and Shadcn UI. Implement `BackgroundPaths` and `HeroSection` components. Replace emojis with Phosphor/Lucide icons.
+**Depends on**: Phase 5
