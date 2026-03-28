@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -110,9 +110,47 @@ export function TeamView() {
     }
   };
 
+  const loadingMessages = [
+    "Securely parsing resume PDFs...",
+    "Extracting technical proficiencies...",
+    "Aggregating team architectural coverage...",
+    "Benchmarking missing capabilities...",
+    "Estimating competitive salary requirements...",
+    "Generating context-aware Job Descriptions...",
+  ];
+  const [loadingMsgIdx, setLoadingMsgIdx] = useState(0);
+
+  useEffect(() => {
+    if (!isSubmitting) return;
+    const interval = setInterval(() => {
+      setLoadingMsgIdx((prev) => (prev + 1) % loadingMessages.length);
+    }, 4500);
+    return () => clearInterval(interval);
+  }, [isSubmitting]);
+
   return (
     <div className="space-y-8">
-      {!result ? (
+      {isSubmitting ? (
+        <Card className="min-h-[60vh] flex flex-col items-center justify-center border-dashed bg-muted/30">
+          <CardContent className="flex flex-col items-center text-center space-y-6 pt-6">
+            <div className="relative">
+              <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full animate-pulse" />
+              <div className="relative bg-background border rounded-2xl p-6 shadow-sm">
+                <Loader2 className="h-10 w-10 text-primary animate-spin" />
+              </div>
+            </div>
+            <div className="space-y-2 max-w-sm">
+              <h3 className="text-xl font-bold tracking-tight">AI Orchestration in Progress</h3>
+              <p className="text-muted-foreground animate-pulse transition-opacity duration-500">
+                {loadingMessages[loadingMsgIdx]}
+              </p>
+            </div>
+            <div className="w-64 mt-4">
+              <Progress value={(loadingMsgIdx / (loadingMessages.length - 1)) * 100} className="h-1.5" />
+            </div>
+          </CardContent>
+        </Card>
+      ) : !result ? (
         <Card>
           <CardHeader>
             <CardTitle>Team Gap Analysis</CardTitle>
