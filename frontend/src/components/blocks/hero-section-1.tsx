@@ -1,6 +1,7 @@
+"use client";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, ChevronRight, FileSearch, ChartLineUp } from "@phosphor-icons/react";
-import { UserCheck, ShieldCheck, Zap } from "lucide-react";
+import { ArrowRight, ChartLineUp } from "@phosphor-icons/react";
+import { UserCheck, ShieldCheck, Zap, ChevronRight, FileSearch } from "lucide-react";
 import Link from "next/link";
 import { TextEffect } from "@/components/ui/text-effect";
 import { AnimatedGroup } from "@/components/ui/animated-group";
@@ -83,7 +84,7 @@ export function HeroSection() {
           <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto mt-4">
             <Button size="lg" className="w-full sm:w-auto h-14 px-8 text-base shadow-lg shadow-primary/20" asChild>
               <Link href="/dashboard">
-                <FileSearch className="mr-2 w-5 h-5" weight="bold" /> Analyze Candidate
+                <FileSearch className="mr-2 w-5 h-5" strokeWidth={2.5} /> Analyze Candidate
               </Link>
             </Button>
             <Button size="lg" variant="outline" className="w-full sm:w-auto h-14 px-8 text-base bg-background/50 backdrop-blur-sm" asChild>
