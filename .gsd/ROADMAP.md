@@ -86,7 +86,8 @@
 **Depends on**: Phase 8
 
 **Tasks**:
-- [ ] TBD (run `/plan 9` to create)
+- [ ] Plan 9.1: Shadcn Chart Integration
+- [ ] Plan 9.2: Implement Shadcn Radar Chart and Verification Badges
 
 **Verification**:
 - TBD
