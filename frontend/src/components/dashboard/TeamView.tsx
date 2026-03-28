@@ -21,6 +21,7 @@ import {
   UploadCloud,
   X,
   File as FileIcon,
+  Copy,
 } from "lucide-react";
 
 export function TeamView() {
@@ -439,37 +440,51 @@ export function TeamView() {
             </h3>
 
             <div className="grid grid-cols-1 space-y-6">
-              {result.hire_plan?.map((role: any, i: number) => (
-                <Card key={i} className="overflow-hidden">
-                  <div className="bg-muted px-6 py-4 flex flex-col sm:flex-row justify-between sm:items-center border-b gap-4">
+              {result.hire_plan?.map((role: any, i: number) => {
+                const jdData = result.job_descriptions?.[i];
+                return (
+                <Card key={i} className="overflow-hidden border-primary/20 shadow-sm relative group">
+                  <div className="bg-gradient-to-r from-primary/5 via-transparent to-transparent px-6 py-5 flex flex-col sm:flex-row justify-between sm:items-center border-b gap-4">
                     <div>
-                      <h4 className="text-lg font-bold">{role.role_title}</h4>
-                      <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400 mt-1">
-                        Est. Salary: {role.salary_benchmark}
+                      <h4 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/80">
+                        {role.role}
+                      </h4>
+                      <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400 mt-1.5 flex items-center gap-1.5">
+                        <Briefcase className="h-4 w-4" />
+                        Est. Salary: {role.salary?.formatted || "Competitive"}
                       </p>
                     </div>
-                    <Badge className="w-fit">{location}</Badge>
+                    <Badge variant="secondary" className="w-fit py-1.5 px-3 border-primary/20 bg-background shadow-sm">
+                      {location}
+                    </Badge>
                   </div>
                   <CardContent className="pt-6">
                     <div className="mb-6">
-                      <h5 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide mb-2">
+                      <h5 className="font-semibold text-sm text-primary/80 uppercase tracking-wide mb-2">
                         Strategic Justification
                       </h5>
-                      <p className="text-sm">{role.justification}</p>
+                      <p className="text-sm text-foreground/90">{role.justification}</p>
                     </div>
 
                     <div>
-                      <h5 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide mb-3 flex items-center gap-2">
-                        <FileText className="h-4 w-4" /> Ready-to-Post JD
-                        snippet
+                      <h5 className="font-semibold text-sm text-primary/80 uppercase tracking-wide mb-3 flex items-center gap-2">
+                        <FileText className="h-4 w-4" /> Ready-to-Post JD snippet
                       </h5>
-                      <div className="bg-muted/30 p-4 rounded-lg font-mono text-sm whitespace-pre-wrap text-muted-foreground border">
-                        {role.job_description}
+                      <div className="bg-muted/40 p-5 rounded-xl text-sm whitespace-pre-wrap text-muted-foreground border border-muted-foreground/10 relative group/jd overflow-hidden shadow-inner">
+                        {jdData?.description || "Formatting JD..."}
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          className="absolute top-3 right-3 opacity-0 group-hover/jd:opacity-100 transition-opacity shadow-sm bg-background/80 backdrop-blur"
+                          onClick={() => navigator.clipboard.writeText(jdData?.description || "")}
+                        >
+                          <Copy className="h-4 w-4 mr-2" /> Copy text
+                        </Button>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+              )})}
 
               {(!result.hire_plan || result.hire_plan.length === 0) && (
                 <Card className="bg-muted/50 border-dashed">

@@ -28,7 +28,7 @@ def _get_gemini_model():
             if not api_key:
                 raise ValueError("GEMINI_API_KEY not configured")
             genai.configure(api_key=api_key)
-            _gemini_model = genai.GenerativeModel("gemini-2.0-flash")
+            _gemini_model = genai.GenerativeModel("gemini-2.5-flash")
         except Exception as e:
             print(f"[SkillMatcher] Gemini init failed: {e}")
             _gemini_model = None
