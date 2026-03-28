@@ -70,3 +70,10 @@
 **Status**: ✅ Complete
 **Objective**: Build out the Next.js `/dashboard` route, abstract API fetches with React paradigms (connecting to `localhost:8000`), and construct the rich shadcn-based result cards for Candidate and Team Gap analysis, bringing full functional parity to the React rollout.
 **Depends on**: Phase 6
+
+---
+
+### Phase 8: LLM Semantic Mapping & Advanced UI (Radar/Bulk Upload)
+**Status**: ⬜ Not Started
+**Objective**: Integrate the Gemini API to intelligently map abstract skill relationships (e.g., NLP vs BERT) by feeding it repo metadata (README/requirements files). Implement Candidate Radar Charts on the frontend for visual capability assessment, and add a Mass PDF Uploader to the Team gap analysis page to parse an entire team simultaneously.
+**Depends on**: Phase 7
