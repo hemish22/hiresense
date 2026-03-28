@@ -36,7 +36,7 @@
 ---
 
 ### Phase 3: ML Engine — Skill Matching, Learning Prediction & Inflation Detection
-**Status**: ⬜ Not Started
+**Status**: ✅ Complete
 **Objective**: Build the core intelligence layer — semantic skill similarity (sentence embeddings), learning ability predictor (transfer graph + speed modifiers), and resume inflation detector (cross-reference claimed vs verified). Every score includes explainability.
 **Requirements**: REQ-05, REQ-06, REQ-07, REQ-08, REQ-09, REQ-10, REQ-18
 **Deliverable**: Given a candidate profile + job description → full analysis report with match score, learning estimates, credibility flags, and explanations.
