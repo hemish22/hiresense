@@ -3,6 +3,8 @@
 import { useSearchParams } from 'next/navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Suspense } from 'react';
+import { CandidateView } from '@/components/dashboard/CandidateView';
+import { TeamView } from '@/components/dashboard/TeamView';
 
 function DashboardContent() {
     const searchParams = useSearchParams();
@@ -22,15 +24,11 @@ function DashboardContent() {
                     <TabsTrigger value="candidate">Candidate Evaluation</TabsTrigger>
                     <TabsTrigger value="team">Team Gap Analysis</TabsTrigger>
                 </TabsList>
-                <TabsContent value="candidate" className="space-y-4">
-                    <div className="p-12 border rounded-xl border-dashed bg-muted/5 text-center mt-8 text-muted-foreground"> 
-                        CandidateView Integration Placeholder 
-                    </div>
+                <TabsContent value="candidate" className="space-y-4 pt-4">
+                    <CandidateView />
                 </TabsContent>
-                <TabsContent value="team" className="space-y-4">
-                    <div className="p-12 border rounded-xl border-dashed bg-muted/5 text-center mt-8 text-muted-foreground"> 
-                        TeamView Integration Placeholder 
-                    </div>
+                <TabsContent value="team" className="space-y-4 pt-4">
+                    <TeamView />
                 </TabsContent>
             </Tabs>
         </div>

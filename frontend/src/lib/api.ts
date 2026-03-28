@@ -65,13 +65,24 @@ export async function getCandidateAnalysis(id: string) {
 }
 
 /**
- * Analyze team skill gaps.
+ * Analyze team skill gaps (manual JSON input).
  */
 export async function analyzeTeam(data: any) {
     return apiRequest('/teams/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
+    });
+}
+
+/**
+ * Analyze team skill gaps via bulk PDF resume upload.
+ * Sends FormData with multiple resume files + project description.
+ */
+export async function analyzeTeamBulk(formData: FormData) {
+    return apiRequest('/teams/analyze-bulk', {
+        method: 'POST',
+        body: formData,
     });
 }
 

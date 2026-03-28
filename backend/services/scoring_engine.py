@@ -45,13 +45,16 @@ class ScoringEngine:
 
         # 1. Skill matching
         github_languages = None
+        github_repo_context = None
         if github_data and not github_data.get("user_not_found"):
             github_languages = github_data.get("details", {}).get("languages")
+            github_repo_context = github_data.get("repo_context")
 
         skill_match_result = self.skill_matcher.match(
             candidate_skills=candidate_skills,
             job_description=job_description,
             github_languages=github_languages,
+            github_repo_context=github_repo_context,
         )
 
         # 2. Learning ability prediction

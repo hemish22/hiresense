@@ -4,6 +4,7 @@ Fetches developer activity from GitHub REST API and computes scores.
 """
 
 import requests
+import base64
 from datetime import datetime, timezone, timedelta
 from typing import Optional
 import statistics
@@ -13,6 +14,14 @@ class GitHubAnalyzer:
     """Analyzes a GitHub profile and computes activity-based scores."""
 
     BASE_URL = "https://api.github.com"
+
+    # Files to fetch for deep context (README + dependency manifests)
+    CONTEXT_FILES = [
+        "README.md", "readme.md", "README.rst",
+        "requirements.txt", "setup.py", "pyproject.toml",
+        "package.json", "pom.xml", "build.gradle",
+        "Cargo.toml", "go.mod",
+    ]
 
     def __init__(self, token: Optional[str] = None):
         self.headers = {
@@ -107,6 +116,7 @@ class GitHubAnalyzer:
                 "commit_months": self._get_monthly_counts(commit_data),
                 "active_days": self._count_active_days(commit_data),
             },
+            "repo_context": self._fetch_repo_context(username, original_repos[:5]),
             "explanations": {
                 "consistency": consistency_expl,
                 "project_depth": depth_expl,
@@ -184,6 +194,45 @@ class GitHubAnalyzer:
             except requests.RequestException:
                 continue
         return commit_data
+
+    def _fetch_repo_context(self, username: str, repos: list) -> list:
+        """
+        Fetch README and dependency file contents from top repos.
+        Returns lightweight text snippets for LLM context (not full codebase).
+        """
+        context_items = []
+        seen_files = set()  # Avoid duplicates (e.g. README.md vs readme.md)
+
+        for repo in repos[:3]:  # Limit to top 3 repos to keep payload small
+            repo_name = repo.get("name", "")
+            for filename in self.CONTEXT_FILES:
+                # Skip if we already fetched a variant (readme.md vs README.md)
+                file_key = f"{repo_name}:{filename.lower()}"
+                if file_key in seen_files:
+                    continue
+
+                try:
+                    resp = requests.get(
+                        f"{self.BASE_URL}/repos/{username}/{repo_name}/contents/{filename}",
+                        headers=self.headers,
+                        timeout=8,
+                    )
+                    if resp.status_code == 200:
+                        data = resp.json()
+                        if data.get("encoding") == "base64" and data.get("content"):
+                            raw = base64.b64decode(data["content"]).decode("utf-8", errors="replace")
+                            # Truncate to 4000 chars per file to avoid bloat
+                            truncated = raw[:4000]
+                            context_items.append({
+                                "repo": repo_name,
+                                "file": filename,
+                                "content": truncated,
+                            })
+                            seen_files.add(file_key)
+                except (requests.RequestException, Exception):
+                    continue
+
+        return context_items
 
     def _get_monthly_counts(self, commit_data: dict) -> dict:
         """Bucket commit dates by month."""
