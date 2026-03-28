@@ -74,12 +74,12 @@ export function HeroSection() {
             </span>
           </h1>
           
-          <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl text-balance">
+          <div className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl text-balance">
             <TextEffect preset="fade" per="line" delay={0.4}>
               Evaluate true coding ability, verify skills against GitHub signals, 
               and map team coverage instantly without the guesswork.
             </TextEffect>
-          </p>
+          </div>
 
           <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto mt-4">
             <Button size="lg" className="w-full sm:w-auto h-14 px-8 text-base shadow-lg shadow-primary/20" asChild>
