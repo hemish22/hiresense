@@ -77,3 +77,17 @@
 **Status**: ✅ Complete
 **Objective**: Integrate the Gemini API to intelligently map abstract skill relationships (e.g., NLP vs BERT) by feeding it repo metadata (README/requirements files). Implement Candidate Radar Charts on the frontend for visual capability assessment, and add a Mass PDF Uploader to the Team gap analysis page to parse an entire team simultaneously.
 **Depends on**: Phase 7
+
+---
+
+### Phase 9: Shadcn UI Enhancements (Radar Chart and Verification Badges)
+**Status**: ⬜ Not Started
+**Objective**: Replace the current Recharts radar chart with a highly polished Shadcn-based "Radar Chart - Dots". Add a verification badge UI component to clearly display the status of GitHub parsing (tick/dash/cross), LeetCode parsing (tick/dash/cross), and Gemini semantic analysis (tick/cross).
+**Depends on**: Phase 8
+
+**Tasks**:
+- [ ] TBD (run `/plan 9` to create)
+
+**Verification**:
+- TBD
+
