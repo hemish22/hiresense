@@ -201,13 +201,19 @@ export function CandidateView() {
             
             {/* Verification Badges */}
             <div className="flex flex-wrap gap-2">
-              <div className="flex items-center gap-1.5 text-sm text-muted-foreground border rounded-full px-3 py-1 bg-muted/20 shadow-sm">
+              <div 
+                title={result.scoring?.skill_match?.details?.engine === "gemini" || result.details?.engine === "gemini" ? "Gemini Semantic Engine Active" : "API Key Missing: Local DB Fallback"}
+                className="flex items-center gap-1.5 text-sm text-muted-foreground border rounded-full px-3 py-1 bg-muted/20 shadow-sm cursor-help"
+              >
                 <span className="font-semibold text-xs tracking-wide">GEMINI</span>
                 {result.scoring?.skill_match?.details?.engine === "gemini" || result.details?.engine === "gemini" 
                   ? <CheckCircle2 className="h-4 w-4 text-green-500" /> 
                   : <XCircle className="h-4 w-4 text-destructive" />}
               </div>
-              <div className="flex items-center gap-1.5 text-sm text-muted-foreground border rounded-full px-3 py-1 bg-muted/20 shadow-sm">
+              <div 
+                title={!result.github_analysis?.error && !result.github_analysis?.user_not_found ? "GitHub Data Found" : result.github_analysis?.user_not_found ? "No GitHub Given" : "GitHub Scrape Error"}
+                className="flex items-center gap-1.5 text-sm text-muted-foreground border rounded-full px-3 py-1 bg-muted/20 shadow-sm cursor-help"
+              >
                 <span className="font-semibold text-xs tracking-wide">GITHUB</span>
                 {!result.github_analysis?.error && !result.github_analysis?.user_not_found 
                   ? <CheckCircle2 className="h-4 w-4 text-green-500" /> 
@@ -215,7 +221,10 @@ export function CandidateView() {
                     ? <MinusCircle className="h-4 w-4 text-amber-500" /> 
                     : <XCircle className="h-4 w-4 text-destructive" />}
               </div>
-              <div className="flex items-center gap-1.5 text-sm text-muted-foreground border rounded-full px-3 py-1 bg-muted/20 shadow-sm">
+              <div 
+                title={!result.leetcode_analysis?.error && !result.leetcode_analysis?.user_not_found ? "LeetCode Data Found" : result.leetcode_analysis?.user_not_found ? "No LeetCode Given" : "LeetCode Scrape Error"}
+                className="flex items-center gap-1.5 text-sm text-muted-foreground border rounded-full px-3 py-1 bg-muted/20 shadow-sm cursor-help"
+              >
                 <span className="font-semibold text-xs tracking-wide">LEETCODE</span>
                 {!result.leetcode_analysis?.error && !result.leetcode_analysis?.user_not_found 
                   ? <CheckCircle2 className="h-4 w-4 text-green-500" /> 
@@ -283,26 +292,19 @@ export function CandidateView() {
                         tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
                       />
                       <PolarGrid 
-                        stroke="hsl(var(--muted-foreground))"
-                        strokeOpacity={0.15}
-                      />
-                      <PolarRadiusAxis
-                        angle={30}
-                        domain={[0, 100]}
-                        tick={{ fontSize: 9 }}
-                        tickCount={5}
-                        stroke="hsl(var(--muted-foreground))"
-                        strokeOpacity={0.2}
+                        stroke="hsl(var(--border))"
+                        strokeOpacity={0.8}
                       />
                       <Radar
                         dataKey="score"
-                        fill="var(--color-score)"
-                        fillOpacity={0.6}
-                        stroke="var(--color-score)"
+                        fill="hsl(var(--primary))"
+                        fillOpacity={0.4}
+                        stroke="hsl(var(--primary))"
                         strokeWidth={2}
                         dot={{
                           r: 4,
                           fillOpacity: 1,
+                          fill: "hsl(var(--primary))",
                         }}
                       />
                     </RadarChart>
