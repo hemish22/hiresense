@@ -3,7 +3,7 @@
  * Handles all communication with the FastAPI backend proxied via Next HTTP server.
  */
 
-export const API_BASE = '/api';
+export const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
 
 export async function apiRequest(endpoint: string, options: RequestInit = {}) {
     const url = `${API_BASE}${endpoint}`;
