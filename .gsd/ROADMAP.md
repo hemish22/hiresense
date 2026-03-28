@@ -74,6 +74,6 @@
 ---
 
 ### Phase 8: LLM Semantic Mapping & Advanced UI (Radar/Bulk Upload)
-**Status**: ⬜ Not Started
+**Status**: ✅ Complete
 **Objective**: Integrate the Gemini API to intelligently map abstract skill relationships (e.g., NLP vs BERT) by feeding it repo metadata (README/requirements files). Implement Candidate Radar Charts on the frontend for visual capability assessment, and add a Mass PDF Uploader to the Team gap analysis page to parse an entire team simultaneously.
 **Depends on**: Phase 7
