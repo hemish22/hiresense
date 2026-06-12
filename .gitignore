@@ -48,3 +48,9 @@ models_cache/
 # Generated knowledge graph + local agent instructions
 graphify-out/
 CLAUDE.md
+
+# Scratch notes folder
+mds hi mds/
+
+# GSD planning workspace
+.gsd/
