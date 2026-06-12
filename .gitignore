@@ -54,3 +54,11 @@ mds hi mds/
 
 # GSD planning workspace
 .gsd/
+
+# Misc local files / legacy
+adapters/
+docs/
+frontend_legacy/
+gsd-style.md
+PROJECT_RULES.md
+model_capabilities.yaml
