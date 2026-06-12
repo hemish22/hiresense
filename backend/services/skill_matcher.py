@@ -13,13 +13,33 @@ from backend.config import settings
 
 
 # ──────────────────────────────────────────────
-# Gemini client singleton
+# Groq client singleton (primary)
+# ──────────────────────────────────────────────
+_groq_client = None
+
+
+def _get_groq_client():
+    global _groq_client
+    if _groq_client is None:
+        try:
+            from groq import Groq
+            api_key = settings.GROQ_API_KEY
+            if not api_key:
+                raise ValueError("GROQ_API_KEY not configured")
+            _groq_client = Groq(api_key=api_key)
+        except Exception as e:
+            print(f"[SkillMatcher] Groq init failed: {e}")
+            _groq_client = None
+    return _groq_client
+
+
+# ──────────────────────────────────────────────
+# Gemini client singleton (secondary fallback)
 # ──────────────────────────────────────────────
 _gemini_model = None
 
 
 def _get_gemini_model():
-    """Lazy-load the Gemini generative model."""
     global _gemini_model
     if _gemini_model is None:
         try:
@@ -113,7 +133,17 @@ class SkillMatcher:
                 },
             }
 
-        # Try Gemini first, fall back to embeddings
+        # 1. Try Groq (fastest)
+        groq_client = _get_groq_client()
+        if groq_client:
+            result = self._groq_match(
+                groq_client, all_candidate_skills, jd_skills,
+                job_description, github_repo_context,
+            )
+            if result:
+                return result
+
+        # 2. Fallback: Gemini
         gemini = _get_gemini_model()
         if gemini:
             result = self._gemini_match(
@@ -123,11 +153,114 @@ class SkillMatcher:
             if result:
                 return result
 
-        # Fallback: legacy embedding-based matching
+        # 3. Fallback: embedding-based matching
         return self._embedding_match(all_candidate_skills, jd_skills)
 
     # ──────────────────────────────────────────
-    # Gemini-powered matching
+    # Groq-powered matching (primary)
+    # ──────────────────────────────────────────
+
+    def _groq_match(
+        self,
+        client,
+        candidate_skills: list[str],
+        jd_skills: list[str],
+        job_description: str,
+        repo_context: list = None,
+    ) -> Optional[dict]:
+        repo_text = ""
+        if repo_context:
+            snippets = []
+            for item in repo_context[:6]:
+                snippets.append(f"--- {item['repo']}/{item['file']} ---\n{item['content'][:2000]}")
+            repo_text = "\n\n".join(snippets)
+
+        prompt = f"""You are an expert technical recruiter AI. Analyze how well a candidate's skills match a job description.
+
+CRITICAL: You must understand IMPLICIT skill relationships. For example:
+- "NLP" expertise implies knowledge of BERT, transformers, tokenization
+- "React" implies JavaScript, JSX, component-based architecture
+- "Docker" implies containerization, basic DevOps
+- "TensorFlow" implies machine learning, deep learning, Python
+- "AWS Lambda" implies serverless, cloud computing
+
+## Job Description
+{job_description}
+
+## Extracted JD Requirements
+{json.dumps(jd_skills)}
+
+## Candidate Skills (from resume)
+{json.dumps(list(candidate_skills))}
+
+{f'''## Candidate GitHub Repository Context (README & dependency files)
+{repo_text}
+''' if repo_text else ''}
+
+## Instructions
+1. For each JD requirement, determine if the candidate has a DIRECT match, an IMPLICIT match (related skill/technology), or NO match.
+2. Score each of these categories 0-100: {json.dumps(list(SKILL_CATEGORIES.keys()))}
+   - Score based on how well the candidate covers skills in that category relative to the JD needs.
+   - If a category has no relevance to the JD, score it 50 (neutral).
+3. Provide an overall match_score (0-100).
+4. List matched skills, missing skills, and bonus skills the candidate has beyond the JD.
+
+Return ONLY a valid JSON object with this exact structure:
+{{
+  "match_score": <number 0-100>,
+  "matched_skills": ["skill1", "skill2"],
+  "missing_skills": ["skill3"],
+  "bonus_skills": ["skill4", "skill5"],
+  "category_scores": {{
+    "frontend": <0-100>,
+    "backend": <0-100>,
+    "databases": <0-100>,
+    "devops": <0-100>,
+    "cloud": <0-100>,
+    "ml_ai": <0-100>,
+    "mobile": <0-100>,
+    "security": <0-100>,
+    "languages": <0-100>,
+    "tools": <0-100>
+  }},
+  "semantic_matches": [
+    {{"jd_requirement": "BERT", "candidate_skill": "NLP", "match_type": "implicit", "reasoning": "NLP encompasses BERT"}}
+  ],
+  "explanation": "<2-3 sentence assessment>"
+}}"""
+
+        try:
+            response = client.chat.completions.create(
+                model="llama-3.3-70b-versatile",
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.1,
+                max_tokens=2000,
+            )
+            parsed = _extract_json_from_response(response.choices[0].message.content)
+
+            if not parsed or "match_score" not in parsed:
+                print("[SkillMatcher] Groq returned unparseable response")
+                return None
+
+            return {
+                "match_score": round(float(parsed.get("match_score", 0)), 1),
+                "matched_skills": parsed.get("matched_skills", []),
+                "missing_skills": parsed.get("missing_skills", []),
+                "bonus_skills": parsed.get("bonus_skills", []),
+                "category_scores": parsed.get("category_scores", {}),
+                "explanation": parsed.get("explanation", ""),
+                "details": {
+                    "jd_requirements": jd_skills,
+                    "semantic_matches": parsed.get("semantic_matches", []),
+                    "engine": "groq/llama-3.3-70b-versatile",
+                },
+            }
+        except Exception as e:
+            print(f"[SkillMatcher] Groq match failed: {e}")
+            return None
+
+    # ──────────────────────────────────────────
+    # Gemini-powered matching (secondary fallback)
     # ──────────────────────────────────────────
 
     def _gemini_match(

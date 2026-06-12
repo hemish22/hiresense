@@ -31,9 +31,20 @@ env/
 .DS_Store
 Thumbs.db
 
-# Uploads
+# Uploads (resume PDFs — personal data, never commit)
 uploads/*
 !uploads/.gitkeep
+backend/uploads/*
+!backend/uploads/.gitkeep
 
 # Models cache
 models_cache/
+
+# AI agent / tooling dirs
+.agent/
+.gemini/
+.claude/
+
+# Generated knowledge graph + local agent instructions
+graphify-out/
+CLAUDE.md

@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     # External APIs
     GITHUB_TOKEN: Optional[str] = None
     GEMINI_API_KEY: Optional[str] = None
+    GROQ_API_KEY: Optional[str] = None
 
     # App metadata
     APP_VERSION: str = "1.0.0"
