@@ -60,5 +60,7 @@ adapters/
 docs/
 frontend_legacy/
 gsd-style.md
+ARCHITECTURE.md
 PROJECT_RULES.md
 model_capabilities.yaml
+scripts/
