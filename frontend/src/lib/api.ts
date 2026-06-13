@@ -65,6 +65,70 @@ export async function getCandidateAnalysis(id: string) {
 }
 
 /**
+ * 3D candidate constellation for the recruiter talent map.
+ */
+export async function getConstellation() {
+    return apiRequest('/candidates/constellation');
+}
+
+/**
+ * List open job postings (applicant portal).
+ */
+export async function getJobs() {
+    return apiRequest('/jobs');
+}
+
+/**
+ * Public applicant submission — runs the full evaluation and stores it.
+ * FormData: resume (File), job_id (optional), github_username, leetcode_username.
+ */
+export async function applyCandidate(formData: FormData) {
+    return apiRequest('/candidates/apply', {
+        method: 'POST',
+        body: formData,
+    });
+}
+
+/** List all analyzed candidates (with status + domain) for the pipeline. */
+export async function getCandidateList() {
+    return apiRequest('/candidates/history');
+}
+
+/** Move a candidate to a different pipeline stage. */
+export async function updateCandidateStatus(id: number, status: string) {
+    return apiRequest(`/candidates/${id}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+    });
+}
+
+/** Natural-language candidate search. */
+export async function searchCandidates(q: string) {
+    return apiRequest(`/candidates/search?q=${encodeURIComponent(q)}`);
+}
+
+/** AI hire verdict for a candidate (Groq, template fallback). */
+export async function getCandidateSummary(id: number | string) {
+    return apiRequest(`/candidates/${id}/ai-summary`);
+}
+
+/** Rank all candidates by fit to a specific job. */
+export async function getJobCandidates(jobId: number) {
+    return apiRequest(`/jobs/${jobId}/candidates`);
+}
+
+/** Recruiter analytics overview + supply vs demand. */
+export async function getAnalytics() {
+    return apiRequest('/analytics/overview');
+}
+
+/** Applicant status lookup by email. */
+export async function getApplicationStatus(email: string) {
+    return apiRequest(`/candidates/status?email=${encodeURIComponent(email)}`);
+}
+
+/**
  * Analyze team skill gaps (manual JSON input).
  */
 export async function analyzeTeam(data: any) {
@@ -83,6 +147,22 @@ export async function analyzeTeamBulk(formData: FormData) {
     return apiRequest('/teams/analyze-bulk', {
         method: 'POST',
         body: formData,
+    });
+}
+
+/**
+ * What-if simulation — recompute coverage for an edited roster.
+ * Used by the interactive team editor (no persistence, no JD generation).
+ */
+export async function simulateTeam(data: {
+    team_name?: string;
+    members: { name: string; skills: string[] }[];
+    project_requirements: string[];
+}) {
+    return apiRequest('/teams/simulate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
     });
 }
 

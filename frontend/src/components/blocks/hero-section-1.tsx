@@ -21,10 +21,10 @@ function Header() {
             Features
           </Link>
           <Link href="#analysis" className="text-muted-foreground hover:text-foreground transition-colors">
-            Analysis
+            How it works
           </Link>
-          <Link href="#pricing" className="text-muted-foreground hover:text-foreground transition-colors">
-            Pricing
+          <Link href="/apply" className="text-muted-foreground hover:text-foreground transition-colors">
+            Careers
           </Link>
         </div>
         <div className="flex items-center gap-4">

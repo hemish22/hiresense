@@ -12,6 +12,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         <span className="font-semibold tracking-tight">HireSense AI</span>
                     </Link>
                     <div className="flex items-center gap-4">
+                        <Link href="/apply" className="text-sm font-medium text-muted-foreground hover:text-foreground">
+                            Careers Portal ↗
+                        </Link>
                         <Link href="/" className="text-sm font-medium text-muted-foreground hover:text-foreground">
                             Back to Home
                         </Link>

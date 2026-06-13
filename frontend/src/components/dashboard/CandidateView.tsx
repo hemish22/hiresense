@@ -10,7 +10,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { analyzeCandidate } from "@/lib/api";
+import { analyzeCandidate, getCandidateSummary } from "@/lib/api";
 import {
   UploadCloud,
   FileText,
@@ -233,13 +233,27 @@ function StatPill({
 
 // ---------- main component ----------
 
-export function CandidateView() {
+export function CandidateView({ initialResult }: { initialResult?: any } = {}) {
   const [file, setFile] = useState<File | null>(null);
   const [jd, setJd] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<any | null>(null);
+  const [result, setResult] = useState<any | null>(initialResult ?? null);
   const [copied, setCopied] = useState(false);
+  const [aiSummary, setAiSummary] = useState<{ summary: string; engine: string } | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+
+  const generateVerdict = async () => {
+    if (!result?.id) return;
+    setAiLoading(true);
+    try {
+      setAiSummary(await getCandidateSummary(result.id));
+    } catch {
+      setAiSummary({ summary: "Could not generate verdict.", engine: "error" });
+    } finally {
+      setAiLoading(false);
+    }
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -550,6 +564,35 @@ export function CandidateView() {
                 </Badge>
               ))}
             </div>
+          )}
+
+          {/* ---------- AI Hire Verdict ---------- */}
+          {result?.id && (
+            <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-transparent">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2 text-sm font-semibold">
+                    <Sparkles className="h-4 w-4 text-primary" /> AI Hire Verdict
+                    {aiSummary?.engine && aiSummary.engine !== "error" && (
+                      <span className="text-[10px] uppercase tracking-wide text-muted-foreground border rounded px-1.5 py-0.5">
+                        {aiSummary.engine}
+                      </span>
+                    )}
+                  </div>
+                  <Button size="sm" onClick={generateVerdict} disabled={aiLoading}>
+                    {aiLoading ? (
+                      <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
+                    ) : (
+                      <Sparkles className="h-4 w-4 mr-1.5" />
+                    )}
+                    {aiSummary ? "Regenerate" : "Generate"}
+                  </Button>
+                </div>
+                {aiSummary && (
+                  <p className="text-sm text-foreground/90 mt-3 leading-relaxed">{aiSummary.summary}</p>
+                )}
+              </CardContent>
+            </Card>
           )}
 
           {/* ---------- Score + Executive Summary + Radar ---------- */}

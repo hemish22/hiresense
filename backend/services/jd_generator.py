@@ -99,7 +99,6 @@ class JDGenerator:
         role: str,
         skills: list,
         team_name: str = "",
-        salary_range: dict = None,
     ) -> dict:
         """Generate a complete job description for a role."""
         title = self._make_title(role, team_name)
@@ -107,7 +106,7 @@ class JDGenerator:
         responsibilities = self._build_responsibilities(skills)
         requirements = self._build_requirements(skills, role)
         nice_to_have = self._build_nice_to_have(skills)
-        compensation = self._build_compensation(salary_range)
+        compensation = self._build_compensation()
 
         # Build full markdown description
         sections = {
@@ -136,18 +135,11 @@ class JDGenerator:
         for hire in hire_plan:
             role = hire.get("role", "Software Engineer")
             skills = hire.get("skills_covered", [])
-            salary = hire.get("salary", {})
-            salary_range = salary.get("salary_range") if salary else None
 
             jd = self.generate(
                 role=role,
                 skills=skills,
                 team_name=team_name,
-                salary_range={
-                    **salary_range,
-                    "currency": salary.get("currency", "INR"),
-                    "formatted": salary.get("formatted", ""),
-                } if salary_range else None,
             )
             jds.append(jd)
 
@@ -213,15 +205,9 @@ class JDGenerator:
         nice_to_have.append("Contributions to open-source projects")
         return nice_to_have
 
-    def _build_compensation(self, salary_range: dict) -> str:
+    def _build_compensation(self) -> str:
         """Build compensation section."""
-        if not salary_range:
-            return "Competitive salary commensurate with experience."
-
-        formatted = salary_range.get("formatted", "")
-        if formatted:
-            return f"Salary range: {formatted}, plus equity and benefits."
-        return "Competitive salary commensurate with experience."
+        return "Competitive salary commensurate with experience, plus equity and benefits."
 
     def _format_markdown(
         self, title: str, sections: dict, team_name: str

@@ -26,9 +26,18 @@ class Settings(BaseSettings):
     HOST: str = "0.0.0.0"
     PORT: int = 8000
 
+    # CORS — comma-separated allowed origins, or "*" for any (demo default).
+    CORS_ORIGINS: str = "*"
+
     # File upload
     UPLOAD_DIR: str = "./uploads"
     MAX_FILE_SIZE_MB: int = 10
+
+    @property
+    def cors_origin_list(self) -> list:
+        if self.CORS_ORIGINS.strip() == "*":
+            return ["*"]
+        return [o.strip() for o in self.CORS_ORIGINS.split(",") if o.strip()]
 
     class Config:
         env_file = ".env"

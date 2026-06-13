@@ -1,0 +1,37 @@
+# VCS / tooling
+.git
+.gitignore
+.github
+
+# Python envs / caches
+.venv
+venv
+__pycache__
+*.pyc
+*.egg-info
+
+# Frontend (built & deployed separately)
+frontend
+
+# Local data / artifacts
+uploads
+*.db
+*.sqlite3
+.cache
+
+# Agent / planning / graph dirs
+.agent
+.gemini
+.claude
+.gsd
+graphify-out
+sample_resumes
+adapters
+docs
+frontend_legacy
+scripts
+
+# Secrets
+.env
+*.env
+!.env.example

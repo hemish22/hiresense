@@ -26,6 +26,9 @@ class CandidateAnalysis(Base):
     resume_skills = Column(Text, nullable=True)  # JSON array of skills
     job_description = Column(Text, nullable=True)
 
+    # Hiring pipeline stage
+    status = Column(String(32), nullable=True, default="applied")
+
     # Scores (0.0 - 1.0)
     match_score = Column(Float, nullable=True)
     learning_ability_score = Column(Float, nullable=True)

@@ -25,9 +25,35 @@ Base = declarative_base()
 def init_db():
     """Create all database tables. Called on app startup."""
     # Import all models so they register with Base.metadata
-    from backend.models import candidate, team  # noqa: F401
+    from backend.models import candidate, team, job  # noqa: F401
 
     Base.metadata.create_all(bind=engine)
+
+    # Lightweight migrations for columns added after a table already existed
+    _ensure_columns()
+
+    # Seed default job postings (open application + sample roles)
+    db = SessionLocal()
+    try:
+        job.seed_jobs(db)
+    finally:
+        db.close()
+
+
+def _ensure_columns():
+    """Add columns introduced after initial table creation (SQLite-safe)."""
+    from sqlalchemy import inspect, text
+
+    insp = inspect(engine)
+    try:
+        cols = [c["name"] for c in insp.get_columns("candidate_analyses")]
+    except Exception:
+        return
+    if "status" not in cols:
+        with engine.begin() as conn:
+            conn.execute(text(
+                "ALTER TABLE candidate_analyses ADD COLUMN status VARCHAR(32) DEFAULT 'applied'"
+            ))
 
 
 def get_db():

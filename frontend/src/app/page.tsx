@@ -1,4 +1,5 @@
 import { HeroSection } from "@/components/blocks/hero-section-1";
+import { FeaturesSection, AnalysisSection } from "@/components/blocks/landing-sections";
 import { BackgroundPaths } from "@/components/ui/background-paths";
 
 export default function Home() {
@@ -9,6 +10,8 @@ export default function Home() {
       </div>
       <div className="relative z-10">
         <HeroSection />
+        <FeaturesSection />
+        <AnalysisSection />
       </div>
     </div>
   );
