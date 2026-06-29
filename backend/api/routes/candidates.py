@@ -371,6 +371,17 @@ async def update_candidate_status(
     return {"id": a.id, "status": a.status}
 
 
+@router.delete("/candidates/{analysis_id}")
+async def delete_candidate(analysis_id: int, db: Session = Depends(get_db)):
+    """Remove a candidate from the pipeline."""
+    a = db.query(CandidateAnalysis).filter(CandidateAnalysis.id == analysis_id).first()
+    if not a:
+        raise HTTPException(status_code=404, detail="Candidate not found")
+    db.delete(a)
+    db.commit()
+    return {"deleted": analysis_id}
+
+
 @router.get("/candidates/{analysis_id}/ai-summary")
 async def candidate_ai_summary(analysis_id: int, db: Session = Depends(get_db)):
     """Generate a short hire verdict for a candidate (Groq, template fallback)."""

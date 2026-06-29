@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   getCandidateList,
   updateCandidateStatus,
+  deleteCandidate,
   getJobs,
   getJobCandidates,
 } from "@/lib/api";
@@ -28,6 +29,7 @@ import {
   X,
   Briefcase,
   Trophy,
+  Trash2,
 } from "lucide-react";
 
 type Candidate = {
@@ -88,6 +90,19 @@ export function PipelineView() {
       await updateCandidateStatus(c.id, next);
     } catch {
       load(); // revert on failure
+    }
+  };
+
+  const remove = async (c: Candidate) => {
+    if (!confirm(`Delete ${c.candidate_name || c.email || `#${c.id}`} from the pipeline? This cannot be undone.`))
+      return;
+    const prev = candidates;
+    setCandidates((p) => p.filter((x) => x.id !== c.id));
+    setCompare((p) => p.filter((x) => x.id !== c.id));
+    try {
+      await deleteCandidate(c.id);
+    } catch {
+      setCandidates(prev); // revert on failure
     }
   };
 
@@ -249,14 +264,23 @@ export function PipelineView() {
                             <ChevronRight className="h-3.5 w-3.5" />
                           </button>
                         </div>
-                        <button
-                          onClick={() => toggleCompare(c)}
-                          className={`text-[10px] px-1.5 py-0.5 rounded ${
-                            selected ? "bg-primary text-primary-foreground" : "hover:bg-muted text-muted-foreground"
-                          }`}
-                        >
-                          {selected ? "✓" : "compare"}
-                        </button>
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => toggleCompare(c)}
+                            className={`text-[10px] px-1.5 py-0.5 rounded ${
+                              selected ? "bg-primary text-primary-foreground" : "hover:bg-muted text-muted-foreground"
+                            }`}
+                          >
+                            {selected ? "✓" : "compare"}
+                          </button>
+                          <button
+                            onClick={() => remove(c)}
+                            className="p-1 rounded text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                            title="Delete candidate"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   );

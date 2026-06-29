@@ -103,6 +103,11 @@ export async function updateCandidateStatus(id: number, status: string) {
     });
 }
 
+/** Remove a candidate from the pipeline. */
+export async function deleteCandidate(id: number) {
+    return apiRequest(`/candidates/${id}`, { method: 'DELETE' });
+}
+
 /** Natural-language candidate search. */
 export async function searchCandidates(q: string) {
     return apiRequest(`/candidates/search?q=${encodeURIComponent(q)}`);
