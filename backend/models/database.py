@@ -8,10 +8,14 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 
 from backend.config import settings
 
-# Create engine — check_same_thread=False needed for SQLite with FastAPI
+# Create engine — check_same_thread is SQLite-only; skip it for Postgres/others.
+# pool_pre_ping avoids stale-connection errors on managed Postgres (idle drops).
+_url = settings.DATABASE_URL
+_connect_args = {"check_same_thread": False} if _url.startswith("sqlite") else {}
 engine = create_engine(
-    settings.DATABASE_URL,
-    connect_args={"check_same_thread": False},
+    _url,
+    connect_args=_connect_args,
+    pool_pre_ping=True,
     echo=False,
 )
 
