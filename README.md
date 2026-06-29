@@ -1,3 +1,14 @@
+---
+title: HireSense AI
+emoji: 🧠
+colorFrom: indigo
+colorTo: blue
+sdk: docker
+app_port: 7860
+pinned: false
+license: mit
+---
+
 # HireSense AI
 
 > Intelligence beyond the resume — a multi-signal hiring platform that evaluates true ability, maps your talent pool in 3D, and plans your team's next hires.
