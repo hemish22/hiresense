@@ -15,6 +15,12 @@ license: mit
 
 HireSense parses a candidate's resume, **verifies** their claimed skills against real GitHub and LeetCode signals, scores fit against a job description, and turns the whole applicant pool into an explorable **3D talent map** — plus team gap analysis, a hiring pipeline, and recruiter analytics.
 
+### 🔗 Live demo
+- **App (recruiter + applicant portal):** https://hiresense123.vercel.app
+- **API (FastAPI backend):** https://hemish22-hiresense.hf.space — docs at [`/docs`](https://hemish22-hiresense.hf.space/docs)
+
+> Hosted on the free tier: the frontend is on Vercel, the backend on Hugging Face Spaces (sleeps when idle, so the first request may take a few seconds to wake).
+
 ---
 
 ## ✨ Features
@@ -24,7 +30,7 @@ HireSense parses a candidate's resume, **verifies** their claimed skills against
 | 🔍 **Candidate Evaluation** | Resume → skills, scored against a JD with GitHub & LeetCode verification, learning-ability and credibility signals, and a one-click **AI hire verdict** (Groq). |
 | 👥 **Team Gap Analysis** | Upload your team's resumes → coverage %, risk-adjusted coverage, **key-person (bus-factor) risk**, upskill paths, composition radar, what-if editor, and a prioritized hire plan with auto-generated JDs. |
 | 🌌 **3D Talent Map** | Every applicant projected into a semantic vector space (PCA + K-Means), colored by domain. Hover for detail, click to open the full evaluation, search in natural language. |
-| 📋 **Hiring Pipeline** | Kanban board across stages (Applied → Hired/Rejected), per-role candidate ranking, and side-by-side candidate compare. |
+| 📋 **Hiring Pipeline** | Kanban board across stages (Applied → Hired/Rejected), per-role candidate ranking, side-by-side candidate compare, and one-click **delete** to drop a candidate from the pipeline. |
 | 📊 **Recruiting Insights** | Score distribution, pipeline funnel, talent supply vs open-role demand, and applications over time. |
 | 💼 **Applicant Portal** | A separate public careers site (`/apply`) where candidates apply year-round or to specific roles — every application is auto-evaluated and stored instantly. |
 
@@ -133,20 +139,30 @@ docker compose up --build
 
 ## ☁️ Deploy (free tier)
 
-The backend bundles ML libraries, so it runs best on a host with real memory. The simplest free combo is **Hugging Face Spaces** (backend) + **Vercel** (frontend).
+The live demo runs **Hugging Face Spaces** (backend) + **Vercel** (frontend) + **Neon** (managed Postgres). The backend bundles ML libraries, so it needs a host with real memory — HF Spaces fits; Render/Railway free tiers tend to OOM.
+
+### Database → Neon (managed Postgres)
+SQLite is ephemeral on Spaces/PaaS (wiped on every rebuild), so use a managed Postgres for persistence.
+1. Create a free project at [neon.tech](https://neon.tech) and copy the connection string.
+2. Format it for SQLAlchemy + SSL: `postgresql+psycopg2://USER:PASS@HOST/DB?sslmode=require`.
+3. Use it as the backend's `DATABASE_URL`. Tables auto-create on first startup.
 
 ### Backend → Hugging Face Spaces (Docker)
+The repo includes a GitHub Action ([`.github/workflows/deploy-hf-space.yml`](.github/workflows/deploy-hf-space.yml)) that mirrors `main` to a Space on every push — HF rebuilds the root `Dockerfile` automatically.
 1. Create a new **Space** → SDK: **Docker** → blank.
-2. Push this repo to the Space (or connect the GitHub repo). HF builds the `Dockerfile` automatically.
-3. In **Settings → Variables and secrets**, add `GROQ_API_KEY`, `GEMINI_API_KEY`, `GITHUB_TOKEN`, and `CORS_ORIGINS=https://<your-vercel-app>.vercel.app`.
-4. The API is live at `https://<user>-<space>.hf.space` (docs at `/docs`).
+2. In the **GitHub repo**, add a secret `HF_TOKEN` (a *write* token from [hf.co/settings/tokens](https://huggingface.co/settings/tokens)). The Action handles deploys from then on.
+3. In **Space → Settings → Variables and secrets**, add `DATABASE_URL`, `GROQ_API_KEY`, `GEMINI_API_KEY`, `GITHUB_TOKEN`, and `CORS_ORIGINS=https://<your-vercel-app>.vercel.app`.
+4. The API is live at `https://<user>-<space>.hf.space` (docs at `/docs`). The Space's port/metadata come from the YAML block at the top of this README (`sdk: docker`, `app_port: 7860`).
 
 ### Frontend → Vercel
-1. **Import Project** → select this repo → set **Root Directory** to `frontend`.
-2. Add env var `NEXT_PUBLIC_API_URL=https://<your-space>.hf.space/api`.
-3. Deploy. Vercel auto-detects Next.js.
+1. **Import Project** → select this repo → set **Root Directory** to **`frontend`** (the repo root is the backend — leaving it at `./` makes Vercel detect framework "Other" and serve 404s on every route).
+2. Confirm **Framework Preset = Next.js**, then add env var `NEXT_PUBLIC_API_URL=https://<your-space>.hf.space/api` (baked at build time — redeploy if you change it).
+3. Deploy, then put the resulting `*.vercel.app` URL into the Space's `CORS_ORIGINS`.
+4. For a public demo, turn **Settings → Deployment Protection** off (otherwise the site sits behind Vercel login).
 
-> Alternative backends: Render or Railway (use the included `Dockerfile`). On Render's free tier the ML deps may exceed the memory limit — prefer Hugging Face Spaces or a paid instance.
+> **Build note:** the frontend builds with webpack (`next build --webpack`), not Turbopack. Next 16's default Turbopack builder can emit empty output on newer Node versions — the `dev`/`build` scripts in `frontend/package.json` pin webpack to avoid this.
+
+> Alternative backends: Render or Railway (use the included `Dockerfile`). On free tiers the ML deps may exceed the memory limit — prefer Hugging Face Spaces or a paid instance.
 
 ---
 
