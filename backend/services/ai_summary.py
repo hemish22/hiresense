@@ -1,7 +1,7 @@
 """
 HireSense AI — Candidate Executive Summary
 Generates a short "why hire / why not" verdict from the full evaluation.
-Uses Groq (llama-3.3-70b) when available, with a deterministic template fallback.
+Uses Groq (openai/gpt-oss-120b) when available, with a deterministic template fallback.
 """
 
 from backend.services.skill_matcher import _get_groq_client
@@ -87,7 +87,7 @@ def generate_ai_summary(blob: dict) -> dict:
         )
         try:
             resp = client.chat.completions.create(
-                model="llama-3.3-70b-versatile",
+                model="openai/gpt-oss-120b",
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0.4,
                 max_tokens=180,

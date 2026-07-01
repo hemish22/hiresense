@@ -231,7 +231,7 @@ Return ONLY a valid JSON object with this exact structure:
 
         try:
             response = client.chat.completions.create(
-                model="llama-3.3-70b-versatile",
+                model="openai/gpt-oss-120b",
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0.1,
                 max_tokens=2000,
@@ -252,7 +252,7 @@ Return ONLY a valid JSON object with this exact structure:
                 "details": {
                     "jd_requirements": jd_skills,
                     "semantic_matches": parsed.get("semantic_matches", []),
-                    "engine": "groq/llama-3.3-70b-versatile",
+                    "engine": "groq/gpt-oss-120b",
                 },
             }
         except Exception as e:
